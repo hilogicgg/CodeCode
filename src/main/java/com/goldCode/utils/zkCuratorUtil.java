@@ -126,7 +126,7 @@ public class zkCuratorUtil {
 
         pathCache.close();  // 关闭缓存
         client.close();
-        System.out.println("OK!");
+//        System.out.println("OK!");
     }
 
     // TODO 创建节点
