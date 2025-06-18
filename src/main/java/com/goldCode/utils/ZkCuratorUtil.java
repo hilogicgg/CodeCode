@@ -33,19 +33,25 @@ public class ZkCuratorUtil {
                 .connectString(CommonFiles.ZOOKEEPER_SERVER)    // zk服务器地址  (必选,其余则是生产建议配置)
                 .namespace(CommonFiles.ZOOKEEPER_NAMESPACE)     // 路径前缀: 后续所有操作都在该路径下(在该路径下创建节点或创建子路径)
                 .connectionTimeoutMs(6000)                      // 连接超时时间
-                .retryPolicy(new RetryNTimes(3, 5000)) // 重试策略
+                .retryPolicy(new RetryNTimes(3, 5000)) // 重试策略: 正常会话中断后 触发重试机制
                 .sessionTimeoutMs(60000)                         // 会话超时时间: 客户端会周期发送心跳至服务端, 若5s内服务器没有收到心跳, 则会删除该会话及其相关的临时节点
                 .build();
 
         client.start(); // 连接zk服务器, 开始会话  没有该操作client则无法后续操作
+
 
         // 判断连接会话是否OK
         if (client.getState() == CuratorFrameworkState.STARTED) {
             System.out.println("客户端已连接至zk并启动会话!");
             return client;
         }else {
-            System.out.println("客户端会话初始化异常");
-            return null;
+            System.out.println("客户端会话初始化异常,等待10秒");
+            try { // 等待10秒
+                client.blockUntilConnected(10, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            return client;
         }
     }
 
