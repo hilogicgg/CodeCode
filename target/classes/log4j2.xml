@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SLF4J + Log4j2 配置文件 - log4j2.xml -->
+<!-- 文件位置：src/main/resources/log4j2.xml -->
+<!--
+    日志级别说明（从低到高）：
+    TRACE < DEBUG < INFO < WARN < ERROR < FATAL
+    设置某个级别后，只会输出该级别及以上的日志
+-->
+<Configuration status="WARN" monitorInterval="30">
+
+    <!-- 变量定义 -->
+    <Properties>
+        <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</Property>
+        <Property name="LOG_FILE_PATH">logs</Property>
+    </Properties>
+
+    <!-- 输出源定义 - 配置日志输出位置 -->
+    <Appenders>
+        <!-- GC日志信息 -->
+        <RollingFile name="GcFile" fileName="logs/gc.log"
+                     filePattern="logs/gc-%d{yyyy-MM-dd}-%i.log">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [GC] %msg%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="10MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="30"/>
+        </RollingFile>
+
+        <!-- 输出位置1：控制台输出 -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <!-- 日志级别过滤器：只输出INFO及以上级别的日志 -->
+            <!-- onMatch="ACCEPT" 匹配时接受，onMismatch="DENY" 不匹配时拒绝 -->
+            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+        </Console>
+
+        <!-- 输出位置2：文件输出 - 所有日志 -->
+        <RollingFile name="RollingFile" fileName="${LOG_FILE_PATH}/app.log"
+                     filePattern="${LOG_FILE_PATH}/app-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <!-- 按时间滚动 -->
+                <TimeBasedTriggeringPolicy/>
+                <!-- 按大小滚动 -->
+                <SizeBasedTriggeringPolicy size="100MB"/>
+            </Policies>
+            <!-- 保留最近10个文件 -->
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+
+        <!-- 输出位置3：错误日志单独文件 -->
+        <RollingFile name="ErrorFile" fileName="${LOG_FILE_PATH}/error.log"
+                     filePattern="${LOG_FILE_PATH}/error-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <!-- 日志级别过滤器：只输出ERROR及以上级别的日志 -->
+            <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="50MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="5"/>
+        </RollingFile>
+
+        <!-- 异步输出 - 提高性能 -->
+        <Async name="AsyncConsole">
+            <AppenderRef ref="Console"/>
+        </Async>
+
+        <Async name="AsyncFile">
+            <AppenderRef ref="RollingFile"/>
+        </Async>
+    </Appenders>
+
+    <!-- 日志器定义 - 配置日志输出级别和输出位置 -->
+    <Loggers>   <!-- 下面的Logger即生效. 若没有Logger则Root兜底 -->
+
+        <Logger name="gc" level="debug" additivity="false">
+            <AppenderRef ref="GcFile"/>
+        </Logger>
+
+        <!-- 指定多个输出位置示例：特定包的日志级别和输出目标 -->
+        <!-- level="DEBUG" 设置日志输出级别 -->
+        <!-- additivity="false" 防止日志向上传递，避免重复输出 -->
+        <Logger name="com.example.service" level="DEBUG" additivity="false">
+            <!-- 可以同时输出到多个位置：控制台 + 文件 -->
+            <AppenderRef ref="AsyncConsole"/>
+            <AppenderRef ref="AsyncFile"/>
+        </Logger>
+
+        <!-- Spring框架日志：只输出WARN级别以上 -->
+        <Logger name="org.springframework" level="WARN" additivity="false">
+            <!-- 同样可以配置多个输出位置 -->
+            <AppenderRef ref="AsyncConsole"/>
+            <AppenderRef ref="AsyncFile"/>
+        </Logger>
+
+        <!-- MyBatis SQL日志：DEBUG级别，用于开发调试 -->
+        <Logger name="com.example.mapper" level="DEBUG" additivity="false">
+            <AppenderRef ref="AsyncConsole"/>
+            <AppenderRef ref="AsyncFile"/>
+        </Logger>
+
+        <!-- Hibernate日志：只输出WARNING以上 -->
+        <Logger name="org.hibernate" level="WARN" additivity="false">
+            <AppenderRef ref="AsyncConsole"/>
+            <AppenderRef ref="AsyncFile"/>
+        </Logger>
+
+        <!-- 根日志器：所有未被特定Logger处理的日志都会到这里 -->
+        <!-- level="INFO" 设置默认的日志输出级别 -->
+        <Root level="INFO">
+            <!-- 可以同时输出到3个位置：控制台、普通文件、错误文件 -->
+            <AppenderRef ref="AsyncConsole"/>  <!-- 输出位置1：控制台 -->
+            <AppenderRef ref="AsyncFile"/>     <!-- 输出位置2：所有日志文件 -->
+            <AppenderRef ref="ErrorFile"/>     <!-- 输出位置3：错误日志文件 -->
+            <AppenderRef ref="RollingFile"/>     <!-- 输出位置4：正常日志文件 -->
+
+        </Root>
+    </Loggers>
+</Configuration>

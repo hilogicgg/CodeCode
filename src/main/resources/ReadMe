@@ -2,7 +2,10 @@
     1.1 创建客户端
         CuratorFrameworkFactory 类: 构造者模式的创建客户端的工具类.
             cClient = CuratorFrameworkFactory.build.build();
-    1.2 添加监听器
+    1.2 开始监听 + 添加监听器
+        开始监听
+        NodeCache nodeCache = new NodeCache(cClient, path);
+        nodeCache.start(true);
         如: 子节点监听器
         PathChildrenCache 类: 该类负责子节点监听操作.
             Listenable<PathChildrenCacheListener> listenable = PathChildrenCache.addListenable(); 获取到了子节点监听类型的 监听管理器接口

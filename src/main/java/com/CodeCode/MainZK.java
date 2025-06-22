@@ -1,7 +1,8 @@
-package com.goldCode;
+package com.CodeCode;
 
-import com.goldCode.utils.ZkCuratorUtil;
+import com.CodeCode.utils.ZkCuratorUtil;
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.cache.NodeCache;
 
 /**
  * TODO
@@ -12,14 +13,11 @@ import org.apache.curator.framework.CuratorFramework;
  **/
 public class MainZK {
     public static void main(String[] args) throws Exception {
-        CuratorFramework client = ZkCuratorUtil.getzkClient();
 
-        ZkCuratorUtil.watchNode( client , "/flag"  );
+        CuratorFramework cClient = ZkCuratorUtil.getzkClient();
 
-
+        NodeCache nodeCache = ZkCuratorUtil.watchNode(cClient, "/flag");
 
         Thread.sleep(Long.MAX_VALUE);
-
-        client.close(); // 在线程睡眠完成之后再执行
     }
 }

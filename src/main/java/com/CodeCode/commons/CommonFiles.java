@@ -1,4 +1,4 @@
-package com.goldCode.commons;
+package com.CodeCode.commons;
 
 /**
  * @author ysx

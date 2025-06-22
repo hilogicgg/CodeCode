@@ -30,24 +30,34 @@
 
 
         <!-- ======================================= 日志 =============================== -->
-        <!--slf4j 日志门面-->
+        <!-- SLF4J日志门面 -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.25</version>
+            <version>1.7.36</version>
         </dependency>
-        <!-- 日志与实现的桥接器 -->
+
+        <!-- SLF4J到Log4j 2.x的桥接器 -->
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.25</version>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>2.20.0</version>
         </dependency>
-        <!-- log4j实现-->
+
+        <!-- Log4j 2.x核心实现 -->
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.20.0</version>
         </dependency>
+
+        <!-- Log4j 2.x API -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.20.0</version>
+        </dependency>
+
 
         <!-- ======================================= 单元测试 =============================== -->
         <dependency>
