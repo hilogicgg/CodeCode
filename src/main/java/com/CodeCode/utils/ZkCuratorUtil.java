@@ -81,7 +81,7 @@ public class ZkCuratorUtil {
                     String record = new String(data);
                     if (!record.equals("SUCCESS")) {
                         cClient.setData().forPath(path, "SUCCESS".getBytes());
-                        logger.info("当前" + path + "节点数据: " + new String(currentData.getData()) + ", 已被修正为: " + "SUCCESS");
+//                        logger.info("当前" + path + "节点数据: " + new String(currentData.getData()) + ", 已被修正为: " + "SUCCESS");
                     }
                 }
             }

@@ -6,7 +6,7 @@
     TRACE < DEBUG < INFO < WARN < ERROR < FATAL
     设置某个级别后，只会输出该级别及以上的日志
 -->
-<Configuration status="WARN" monitorInterval="30">
+<Configuration status="DEBUG" monitorInterval="30">
 
     <!-- 变量定义 -->
     <Properties>
@@ -16,24 +16,22 @@
 
     <!-- 输出源定义 - 配置日志输出位置 -->
     <Appenders>
-        <!-- GC日志信息 -->
-        <RollingFile name="GcFile" fileName="logs/gc.log"
-                     filePattern="logs/gc-%d{yyyy-MM-dd}-%i.log">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [GC] %msg%n"/>
-            <Policies>
-                <TimeBasedTriggeringPolicy/>
-                <SizeBasedTriggeringPolicy size="10MB"/>
-            </Policies>
-            <DefaultRolloverStrategy max="30"/>
-        </RollingFile>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+
+        <!-- 专门的 Curator 变化日志文件 -->
+        <File name="CuratorChanges" fileName="logs/curator-changes.log">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{50} - %msg%n"/>
+        </File>
 
         <!-- 输出位置1：控制台输出 -->
-        <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="${LOG_PATTERN}"/>
-            <!-- 日志级别过滤器：只输出INFO及以上级别的日志 -->
-            <!-- onMatch="ACCEPT" 匹配时接受，onMismatch="DENY" 不匹配时拒绝 -->
-            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
-        </Console>
+<!--        <Console name="Console" target="SYSTEM_OUT">-->
+<!--            <PatternLayout pattern="${LOG_PATTERN}"/>-->
+<!--            &lt;!&ndash; 日志级别过滤器：只输出INFO及以上级别的日志 &ndash;&gt;-->
+<!--            &lt;!&ndash; onMatch="ACCEPT" 匹配时接受，onMismatch="DENY" 不匹配时拒绝 &ndash;&gt;-->
+<!--            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>-->
+<!--        </Console>-->
 
         <!-- 输出位置2：文件输出 - 所有日志 -->
         <RollingFile name="RollingFile" fileName="${LOG_FILE_PATH}/app.log"
@@ -75,9 +73,24 @@
     <!-- 日志器定义 - 配置日志输出级别和输出位置 -->
     <Loggers>   <!-- 下面的Logger即生效. 若没有Logger则Root兜底 -->
 
-        <Logger name="gc" level="debug" additivity="false">
-            <AppenderRef ref="GcFile"/>
+        <!-- 只记录缓存变化事件 -->
+        <Logger name="org.apache.curator.framework.recipes.cache" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="CuratorChanges"/>
         </Logger>
+        <!-- Logger 必须通过 AppenderRef 引用 Appender 的 name -->
+        <Logger name="org.apache.curator" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="FileAppender"/>
+        </Logger>
+        <Logger name="org.apache.zookeeper" level="INFO" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <!-- 连接状态变化 -->
+        <Logger name="org.apache.curator.framework.state" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+
 
         <!-- 指定多个输出位置示例：特定包的日志级别和输出目标 -->
         <!-- level="DEBUG" 设置日志输出级别 -->
@@ -114,7 +127,7 @@
             <AppenderRef ref="AsyncConsole"/>  <!-- 输出位置1：控制台 -->
             <AppenderRef ref="AsyncFile"/>     <!-- 输出位置2：所有日志文件 -->
             <AppenderRef ref="ErrorFile"/>     <!-- 输出位置3：错误日志文件 -->
-
+            <AppenderRef ref="Console"/>
         </Root>
     </Loggers>
 </Configuration>
